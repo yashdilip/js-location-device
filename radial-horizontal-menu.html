@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Radial & Horizontal Magic Indicator Menu</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #222;
+      color: #fff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    .switch-menu {
+      margin-bottom: 32px;
+    }
+    .magic-menu,
+    .radial-menu {
+      margin: 0 auto;
+      position: relative;
+      list-style: none;
+      padding: 0;
+    }
+    /* Horizontal Menu Styles */
+    .magic-menu {
+      display: flex;
+      width: 400px;
+      background: #252525;
+      border-radius: 40px;
+      overflow: hidden;
+      height: 50px;
+      align-items: center;
+    }
+    .magic-menu li {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      transition: color 0.3s;
+      font-size: 18px;
+    }
+    .magic-menu li.active {
+      color: #ffdf6e;
+    }
+    .magic-menu .indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80px;
+      height: 100%;
+      background: linear-gradient(90deg,#f0c,#90f);
+      border-radius: 40px;
+      transition: left 0.4s cubic-bezier(.7,-0.5,.3,1.5);
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* Radial Menu Styles */
+    .radial-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      background: #252525;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .radial-menu {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .radial-menu li {
+      position: absolute;
+      width: 80px;
+      height: 36px;
+      background: none;
+      text-align: center;
+      color: #fff;
+      cursor: pointer;
+      font-size: 17px;
+      left: 110px;
+      top: 132px;
+      z-index: 2;
+      pointer-events: all;
+      transition: color 0.3s;
+      line-height: 36px;
+      border-radius: 20px;
+    }
+    .radial-menu li.active {
+      color: #ffdf6e;
+      font-weight: bold;
+    }
+    .radial-menu .indicator {
+      position: absolute;
+      width: 80px;
+      height: 36px;
+      background: linear-gradient(90deg,#f0c,#90f);
+      border-radius: 40px;
+      transition: left 0.5s, top 0.5s;
+      z-index: 1;
+      pointer-events: none;
+    }
+    /* Hide menus based on state */
+    .hide { display: none; }
+    .show { display: block; }
+    /* Switch Styles */
+    .switch-menu input[type="checkbox"] { display: none; }
+    .switch-menu label {
+      background: #444;
+      border-radius: 20px;
+      padding: 10px 24px;
+      cursor: pointer;
+      font-size: 18px;
+      letter-spacing: 1px;
+      color: #ffdf6e;
+      border: 1px solid #333;
+      transition: background 0.2s;
+    }
+    .switch-menu input[type="checkbox"]:checked+label {
+      background: #363d73;
+      color: #df5ae8;
+      border-color: #686de0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="switch-menu">
+    <input type="checkbox" id="switch" />
+    <label for="switch">Switch to Radial / Horizontal</label>
+  </div>
+
+  <ul class="magic-menu show" id="menu-horizontal">
+    <li class="active">Home</li>
+    <li>Profile</li>
+    <li>Messages</li>
+    <li>Settings</li>
+    <li>Logout</li>
+    <div class="indicator"></div>
+  </ul>
+
+  <div class="radial-container hide" id="menu-radial-container">
+    <ul class="radial-menu" id="menu-radial">
+      <li class="active">Home</li>
+      <li>Profile</li>
+      <li>Messages</li>
+      <li>Settings</li>
+      <li>Logout</li>
+      <div class="indicator"></div>
+    </ul>
+  </div>
+
+  <script>
+    // Menu Switch
+    const switchCheckbox = document.getElementById('switch');
+    const horizontalMenu = document.getElementById('menu-horizontal');
+    const radialContainer = document.getElementById('menu-radial-container');
+    switchCheckbox.addEventListener('change', function() {
+      if (this.checked) {
+        horizontalMenu.classList.add('hide'); horizontalMenu.classList.remove('show');
+        radialContainer.classList.add('show'); radialContainer.classList.remove('hide');
+      } else {
+        radialContainer.classList.add('hide'); radialContainer.classList.remove('show');
+        horizontalMenu.classList.add('show'); horizontalMenu.classList.remove('hide');
+      }
+    });
+
+    // Horizontal Magic Indicator
+    function updateHorizontalIndicator(idx) {
+      const indicator = horizontalMenu.querySelector('.indicator');
+      indicator.style.left = `${idx * 80}px`;
+      horizontalMenu.querySelectorAll('li').forEach((li, i) => {
+        li.classList.toggle('active', i === idx);
+      });
+    }
+    horizontalMenu.querySelectorAll('li').forEach((li, idx) => {
+      li.onclick = () => updateHorizontalIndicator(idx);
+    });
+    updateHorizontalIndicator(0);
+
+    // Radial Magic Indicator
+    function positionRadialItems() {
+      const items = radialMenu.querySelectorAll('li');
+      const radius = 100;
+      const centerX = 110, centerY = 132;
+      const count = items.length-1; // Exclude indicator
+      items.forEach((li, i) => {
+        if (li.classList.contains('indicator')) return;
+        const angle = (i / count) * 2 * Math.PI - Math.PI/2;
+        li.style.left = `${centerX + radius * Math.cos(angle) - 2}px`;
+        li.style.top = `${centerY + radius * Math.sin(angle) - 5}px`;
+      });
+    }
+    const radialMenu = document.getElementById('menu-radial');
+    positionRadialItems();
+
+    function updateRadialIndicator(idx) {
+      const items = radialMenu.querySelectorAll('li');
+      const indicator = radialMenu.querySelector('.indicator');
+      const target = items[idx];
+      indicator.style.left = target.style.left;
+      indicator.style.top = target.style.top;
+      items.forEach((li, i) => {
+        li.classList.toggle('active', i === idx);
+      });
+    }
+    radialMenu.querySelectorAll('li').forEach((li, idx) => {
+      if (li.classList.contains('indicator')) return;
+      li.onclick = () => updateRadialIndicator(idx);
+    });
+    updateRadialIndicator(0);
+
+    window.addEventListener('resize', positionRadialItems);
+  </script>
+</body>
+</html>
